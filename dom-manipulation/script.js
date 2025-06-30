@@ -1,4 +1,4 @@
-// Load from localStorage or use default quotes
+// Load quotes from localStorage or default
 let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "The only way to do great work is to love what you do.", category: "Motivation" },
   { text: "Life is what happens when you're busy making other plans.", category: "Life" },
@@ -15,7 +15,7 @@ const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
 const categorySelect = document.getElementById("categorySelect");
 
-// Populate category dropdown
+// Populate category dropdown from quotes
 function populateCategories() {
   const categories = new Set(quotes.map(q => q.category));
   categorySelect.innerHTML = '<option value="all">All</option>';
@@ -27,7 +27,7 @@ function populateCategories() {
   });
 }
 
-// Display a random quote
+// Show a random quote and store it in sessionStorage
 function showRandomQuote() {
   const selectedCategory = categorySelect.value;
   const filteredQuotes = selectedCategory === "all"
@@ -42,11 +42,11 @@ function showRandomQuote() {
   const randomQuote = filteredQuotes[Math.floor(Math.random() * filteredQuotes.length)];
   quoteDisplay.textContent = `"${randomQuote.text}" - [${randomQuote.category}]`;
 
-  // Save to session storage
+  // Save last viewed quote to sessionStorage
   sessionStorage.setItem("lastQuote", JSON.stringify(randomQuote));
 }
 
-// Add a new quote
+// Add a new quote from user input
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
   const categoryInput = document.getElementById("newQuoteCategory");
@@ -58,8 +58,7 @@ function addQuote() {
     return;
   }
 
-  const newQuote = { text: quoteText, category: quoteCategory };
-  quotes.push(newQuote);
+  quotes.push({ text: quoteText, category: quoteCategory });
   saveQuotes();
 
   textInput.value = "";
@@ -69,7 +68,7 @@ function addQuote() {
   showRandomQuote();
 }
 
-// Dynamically create the form and import/export controls
+// Dynamically create the quote form and import/export controls
 function createAddQuoteForm() {
   const formSection = document.createElement("section");
 
@@ -80,16 +79,19 @@ function createAddQuoteForm() {
   quoteInput.id = "newQuoteText";
   quoteInput.placeholder = "Enter a new quote";
   quoteInput.type = "text";
+  quoteInput.style.marginRight = "10px";
 
   const categoryInput = document.createElement("input");
   categoryInput.id = "newQuoteCategory";
   categoryInput.placeholder = "Enter quote category";
   categoryInput.type = "text";
+  categoryInput.style.marginRight = "10px";
 
   const addButton = document.createElement("button");
   addButton.textContent = "Add Quote";
   addButton.addEventListener("click", addQuote);
 
+  // Import Input
   const importLabel = document.createElement("label");
   importLabel.textContent = " Import Quotes (JSON): ";
   importLabel.style.marginLeft = "10px";
@@ -99,12 +101,13 @@ function createAddQuoteForm() {
   importInput.accept = ".json";
   importInput.addEventListener("change", importFromJsonFile);
 
+  // Export Button
   const exportButton = document.createElement("button");
   exportButton.textContent = "Export Quotes to JSON";
   exportButton.style.marginLeft = "10px";
   exportButton.addEventListener("click", exportToJsonFile);
 
-  // Append elements to the form section
+  // Append all elements to the section
   formSection.appendChild(heading);
   formSection.appendChild(quoteInput);
   formSection.appendChild(categoryInput);
@@ -114,14 +117,14 @@ function createAddQuoteForm() {
   formSection.appendChild(importInput);
   formSection.appendChild(exportButton);
 
+  // Add to body
   document.body.appendChild(formSection);
 }
 
-// Export quotes as JSON file
+// Export quotes as a downloadable JSON file
 function exportToJsonFile() {
   const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-
   const a = document.createElement("a");
   a.href = url;
   a.download = "quotes.json";
@@ -131,7 +134,7 @@ function exportToJsonFile() {
   URL.revokeObjectURL(url);
 }
 
-// Import quotes from JSON file
+// Import quotes from a JSON file
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
   fileReader.onload = function (e) {
@@ -154,7 +157,7 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Load last quote from sessionStorage (if exists)
+// Load last viewed quote from sessionStorage if available
 const last = sessionStorage.getItem("lastQuote");
 if (last) {
   const lastQuote = JSON.parse(last);
