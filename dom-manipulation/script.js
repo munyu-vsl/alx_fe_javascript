@@ -1,7 +1,7 @@
 let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "The only way to do great work is to love what you do.", category: "Motivation" },
   { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-  { text: "In the middle of every difficulty lies opportunity.", category: "Inspiration" },
+  { text: "In the middle of every difficulty lies opportunity.", category: "Inspiration" }
 ];
 
 const quoteDisplay = document.getElementById("quoteDisplay");
@@ -29,32 +29,25 @@ function populateCategories() {
     option.textContent = cat;
     categoryFilter.appendChild(option);
   });
-
-  const saved = loadSelectedCategory();
-  categoryFilter.value = saved;
+  categoryFilter.value = loadSelectedCategory();
 }
 
 function filterQuotes() {
   const selected = categoryFilter.value;
   saveSelectedCategory(selected);
-
   const filtered = selected === "all" ? quotes : quotes.filter(q => q.category === selected);
-
   if (filtered.length === 0) {
     quoteDisplay.textContent = "No quotes in this category.";
     return;
   }
-
   const randomQuote = filtered[Math.floor(Math.random() * filtered.length)];
   quoteDisplay.textContent = `"${randomQuote.text}" - [${randomQuote.category}]`;
-
   sessionStorage.setItem("lastQuote", JSON.stringify(randomQuote));
 }
 
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
   const categoryInput = document.getElementById("newQuoteCategory");
-
   const quoteText = textInput.value.trim();
   const quoteCategory = categoryInput.value.trim();
 
@@ -150,38 +143,44 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// 🔁 Server sync simulation
-function fetchQuotesFromServer() {
-  console.log("🔄 Syncing with server...");
+// ✅ Required: async fetch from JSONPlaceholder
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const serverData = await response.json();
 
-  const serverQuotes = [
-    { text: "Stay hungry, stay foolish.", category: "Motivation" },
-    { text: "Do or do not. There is no try.", category: "Inspiration" }
-  ];
+    const serverQuotes = serverData.slice(0, 5).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
 
-  const localSet = new Set(quotes.map(q => q.text));
-  let updated = false;
+    const localSet = new Set(quotes.map(q => q.text));
+    let updated = false;
 
-  serverQuotes.forEach(serverQuote => {
-    if (!localSet.has(serverQuote.text)) {
-      quotes.push(serverQuote);
-      updated = true;
+    serverQuotes.forEach(serverQuote => {
+      if (!localSet.has(serverQuote.text)) {
+        quotes.push(serverQuote);
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      saveQuotes();
+      populateCategories();
+      filterQuotes();
+      showSyncNotice("✅ New quotes synced from JSONPlaceholder.");
+    } else {
+      console.log("✅ No new updates from server.");
     }
-  });
-
-  if (updated) {
-    saveQuotes();
-    populateCategories();
-    filterQuotes();
-    showSyncNotice("✅ New quotes synced from server.");
-  } else {
-    console.log("✅ No new updates from server.");
+  } catch (error) {
+    console.error("❌ Server sync failed:", error);
+    showSyncNotice("⚠️ Server sync failed.");
   }
+}
 
-// 🕒 Periodic sync
-setInterval(fetchFromServer, 30000);
+// ⏰ Periodic sync with server
+setInterval(fetchQuotesFromServer, 30000);
 
-// 🔔 Sync notification UI
 function showSyncNotice(message) {
   let notice = document.getElementById("syncNotice");
   if (!notice) {
@@ -198,14 +197,14 @@ function showSyncNotice(message) {
   notice.style.display = "block";
 }
 
-// Restore last viewed quote
+// 🧠 Restore last viewed quote
 const last = sessionStorage.getItem("lastQuote");
 if (last) {
   const lastQuote = JSON.parse(last);
   quoteDisplay.textContent = `"${lastQuote.text}" - [${lastQuote.category}]`;
 }
 
-// Init
+// 🔁 Initialize
 newQuoteBtn.addEventListener("click", filterQuotes);
 populateCategories();
 createAddQuoteForm();
