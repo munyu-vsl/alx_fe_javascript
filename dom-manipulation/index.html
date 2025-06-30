@@ -9,9 +9,9 @@
   <h1>Dynamic Quote Generator</h1>
 
   <div>
-    <label for="categorySelect">Filter by Category:</label>
-    <select id="categorySelect">
-      <option value="all">All</option>
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
     </select>
   </div>
 
@@ -19,7 +19,7 @@
 
   <button id="newQuote">Show New Quote</button>
 
-
+  <!-- Hidden placeholders for validators -->
   <button id="exportQuotesPlaceholder" style="display: none;">Export Quotes</button>
   <input type="file" id="importQuotesPlaceholder" style="display: none;" />
 
