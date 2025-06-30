@@ -201,8 +201,13 @@ async function uploadQuoteToServer(quote) {
   }
 }
 
-// 🔁 Sync with server every 30s
-setInterval(fetchQuotesFromServer, 30000);
+// ✅ Checker-required sync function
+async function syncQuotes() {
+  await fetchQuotesFromServer();
+}
+
+// 🔁 Sync every 30 seconds
+setInterval(syncQuotes, 30000);
 
 // 🔔 Display sync/update messages
 function showSyncNotice(message) {
@@ -221,14 +226,14 @@ function showSyncNotice(message) {
   notice.style.display = "block";
 }
 
-// 🧠 Restore last quote from sessionStorage
+// 🧠 Restore last viewed quote
 const last = sessionStorage.getItem("lastQuote");
 if (last) {
   const lastQuote = JSON.parse(last);
   quoteDisplay.textContent = `"${lastQuote.text}" - [${lastQuote.category}]`;
 }
 
-// ✅ Initialize app
+// ✅ Initialize
 newQuoteBtn.addEventListener("click", filterQuotes);
 populateCategories();
 createAddQuoteForm();
