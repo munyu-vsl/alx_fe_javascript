@@ -8,7 +8,6 @@ const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
 const categoryFilter = document.getElementById("categoryFilter");
 
-// Save quotes and current filter to localStorage
 function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
 }
@@ -21,7 +20,6 @@ function loadSelectedCategory() {
   return localStorage.getItem("selectedCategory") || "all";
 }
 
-// Populate category filter dropdown
 function populateCategories() {
   const uniqueCategories = Array.from(new Set(quotes.map(q => q.category)));
   categoryFilter.innerHTML = '<option value="all">All Categories</option>';
@@ -32,12 +30,10 @@ function populateCategories() {
     categoryFilter.appendChild(option);
   });
 
-  // Restore selected category if available
   const saved = loadSelectedCategory();
   categoryFilter.value = saved;
 }
 
-// Filter and display a random quote
 function filterQuotes() {
   const selected = categoryFilter.value;
   saveSelectedCategory(selected);
@@ -55,7 +51,6 @@ function filterQuotes() {
   sessionStorage.setItem("lastQuote", JSON.stringify(randomQuote));
 }
 
-// Add a new quote
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
   const categoryInput = document.getElementById("newQuoteCategory");
@@ -77,7 +72,6 @@ function addQuote() {
   categoryInput.value = "";
 }
 
-// Dynamically create the form and import/export controls
 function createAddQuoteForm() {
   const formSection = document.createElement("section");
 
@@ -100,7 +94,6 @@ function createAddQuoteForm() {
   addButton.textContent = "Add Quote";
   addButton.addEventListener("click", addQuote);
 
-  // Import/export controls
   const importInput = document.createElement("input");
   importInput.type = "file";
   importInput.accept = ".json";
@@ -123,7 +116,6 @@ function createAddQuoteForm() {
   document.body.appendChild(formSection);
 }
 
-// Export quotes to a JSON file
 function exportToJsonFile() {
   const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -136,7 +128,6 @@ function exportToJsonFile() {
   URL.revokeObjectURL(url);
 }
 
-// Import quotes from a JSON file
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
   fileReader.onload = function (e) {
@@ -159,17 +150,64 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Restore last viewed quote from sessionStorage
+// 🔁 Server sync simulation
+function fetchFromServer() {
+  console.log("🔄 Syncing with server...");
+
+  const serverQuotes = [
+    { text: "Stay hungry, stay foolish.", category: "Motivation" },
+    { text: "Do or do not. There is no try.", category: "Inspiration" }
+  ];
+
+  const localSet = new Set(quotes.map(q => q.text));
+  let updated = false;
+
+  serverQuotes.forEach(serverQuote => {
+    if (!localSet.has(serverQuote.text)) {
+      quotes.push(serverQuote);
+      updated = true;
+    }
+  });
+
+  if (updated) {
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+    showSyncNotice("✅ New quotes synced from server.");
+  } else {
+    console.log("✅ No new updates from server.");
+  }
+}
+
+// 🕒 Periodic sync
+setInterval(fetchFromServer, 30000);
+
+// 🔔 Sync notification UI
+function showSyncNotice(message) {
+  let notice = document.getElementById("syncNotice");
+  if (!notice) {
+    notice = document.createElement("div");
+    notice.id = "syncNotice";
+    notice.style.background = "#e0ffe0";
+    notice.style.border = "1px solid #2ecc71";
+    notice.style.padding = "10px";
+    notice.style.marginTop = "10px";
+    notice.style.fontWeight = "bold";
+    document.body.insertBefore(notice, quoteDisplay.nextSibling);
+  }
+  notice.textContent = message;
+  notice.style.display = "block";
+}
+
+// Restore last viewed quote
 const last = sessionStorage.getItem("lastQuote");
 if (last) {
   const lastQuote = JSON.parse(last);
   quoteDisplay.textContent = `"${lastQuote.text}" - [${lastQuote.category}]`;
 }
 
-// Event listeners
+// Init
 newQuoteBtn.addEventListener("click", filterQuotes);
-
-// Initialize
 populateCategories();
 createAddQuoteForm();
 filterQuotes();
