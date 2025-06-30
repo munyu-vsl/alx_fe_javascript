@@ -62,7 +62,7 @@ function addQuote() {
   populateCategories();
   filterQuotes();
 
-  uploadQuoteToServer(newQuote); // ✅ POST to server
+  uploadQuoteToServer(newQuote);
 
   textInput.value = "";
   categoryInput.value = "";
@@ -146,7 +146,7 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// ✅ GET: Fetch quotes from JSONPlaceholder
+// ✅ GET quotes from mock server
 async function fetchQuotesFromServer() {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts");
@@ -171,17 +171,17 @@ async function fetchQuotesFromServer() {
       saveQuotes();
       populateCategories();
       filterQuotes();
-      showSyncNotice("✅ New quotes synced from JSONPlaceholder.");
+      showSyncNotice("Quotes synced with server!");
     } else {
-      console.log("✅ No new updates from server.");
+      console.log("No new updates from server.");
     }
   } catch (error) {
-    console.error("❌ Server sync failed:", error);
+    console.error("Server sync failed:", error);
     showSyncNotice("⚠️ Server sync failed.");
   }
 }
 
-// ✅ POST: Upload quote to JSONPlaceholder
+// ✅ POST new quote to server
 async function uploadQuoteToServer(quote) {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
@@ -193,10 +193,10 @@ async function uploadQuoteToServer(quote) {
     });
 
     const result = await response.json();
-    console.log("📤 Uploaded quote:", result);
+    console.log("Uploaded quote:", result);
     showSyncNotice("📤 Quote uploaded to server.");
   } catch (error) {
-    console.error("❌ Failed to upload quote:", error);
+    console.error("Upload failed:", error);
     showSyncNotice("⚠️ Failed to upload quote.");
   }
 }
@@ -206,10 +206,10 @@ async function syncQuotes() {
   await fetchQuotesFromServer();
 }
 
-// 🔁 Sync every 30 seconds
+// ⏲️ Periodic sync every 30 seconds
 setInterval(syncQuotes, 30000);
 
-// 🔔 Display sync/update messages
+// 💬 UI notification for sync status
 function showSyncNotice(message) {
   let notice = document.getElementById("syncNotice");
   if (!notice) {
@@ -226,14 +226,14 @@ function showSyncNotice(message) {
   notice.style.display = "block";
 }
 
-// 🧠 Restore last viewed quote
+// 🧠 Load last quote from sessionStorage
 const last = sessionStorage.getItem("lastQuote");
 if (last) {
   const lastQuote = JSON.parse(last);
   quoteDisplay.textContent = `"${lastQuote.text}" - [${lastQuote.category}]`;
 }
 
-// ✅ Initialize
+// ✅ Initialize app
 newQuoteBtn.addEventListener("click", filterQuotes);
 populateCategories();
 createAddQuoteForm();
