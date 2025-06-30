@@ -56,10 +56,13 @@ function addQuote() {
     return;
   }
 
-  quotes.push({ text: quoteText, category: quoteCategory });
+  const newQuote = { text: quoteText, category: quoteCategory };
+  quotes.push(newQuote);
   saveQuotes();
   populateCategories();
   filterQuotes();
+
+  uploadQuoteToServer(newQuote); // ✅ POST to server
 
   textInput.value = "";
   categoryInput.value = "";
@@ -143,7 +146,7 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// ✅ Required: async fetch from JSONPlaceholder
+// ✅ GET: Fetch quotes from JSONPlaceholder
 async function fetchQuotesFromServer() {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts");
@@ -178,9 +181,30 @@ async function fetchQuotesFromServer() {
   }
 }
 
-// ⏰ Periodic sync with server
+// ✅ POST: Upload quote to JSONPlaceholder
+async function uploadQuoteToServer(quote) {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(quote)
+    });
+
+    const result = await response.json();
+    console.log("📤 Uploaded quote:", result);
+    showSyncNotice("📤 Quote uploaded to server.");
+  } catch (error) {
+    console.error("❌ Failed to upload quote:", error);
+    showSyncNotice("⚠️ Failed to upload quote.");
+  }
+}
+
+// 🔁 Sync with server every 30s
 setInterval(fetchQuotesFromServer, 30000);
 
+// 🔔 Display sync/update messages
 function showSyncNotice(message) {
   let notice = document.getElementById("syncNotice");
   if (!notice) {
@@ -197,14 +221,14 @@ function showSyncNotice(message) {
   notice.style.display = "block";
 }
 
-// 🧠 Restore last viewed quote
+// 🧠 Restore last quote from sessionStorage
 const last = sessionStorage.getItem("lastQuote");
 if (last) {
   const lastQuote = JSON.parse(last);
   quoteDisplay.textContent = `"${lastQuote.text}" - [${lastQuote.category}]`;
 }
 
-// 🔁 Initialize
+// ✅ Initialize app
 newQuoteBtn.addEventListener("click", filterQuotes);
 populateCategories();
 createAddQuoteForm();
