@@ -66,6 +66,44 @@ function addQuote() {
 newQuoteBtn.addEventListener("click", showRandomQuote);
 addQuoteBtn.addEventListener("click", addQuote);
 
+
+function createAddQuoteForm() {
+  const formSection = document.createElement("section");
+
+  const heading = document.createElement("h3");
+  heading.textContent = "Add a New Quote";
+
+  const quoteInput = document.createElement("input");
+  quoteInput.id = "newQuoteText";
+  quoteInput.placeholder = "Enter a new quote";
+  quoteInput.type = "text";
+
+  const categoryInput = document.createElement("input");
+  categoryInput.id = "newQuoteCategory";
+  categoryInput.placeholder = "Enter quote category";
+  categoryInput.type = "text";
+
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add Quote";
+  addButton.addEventListener("click", addQuote);
+
+  // Style spacing if needed
+  quoteInput.style.marginRight = "10px";
+  categoryInput.style.marginRight = "10px";
+  addButton.style.marginTop = "10px";
+
+  // Append all to the section
+  formSection.appendChild(heading);
+  formSection.appendChild(quoteInput);
+  formSection.appendChild(categoryInput);
+  formSection.appendChild(addButton);
+
+  // Append to body
+  document.body.appendChild(formSection);
+}
 // Initial setup
 populateCategories();
 showRandomQuote();
+populateCategories();
+showRandomQuote();
+createAddQuoteForm();
