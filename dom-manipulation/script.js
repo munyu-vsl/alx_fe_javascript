@@ -151,7 +151,7 @@ function importFromJsonFile(event) {
 }
 
 // 🔁 Server sync simulation
-function fetchFromServer() {
+function fetchQuotesFromServer() {
   console.log("🔄 Syncing with server...");
 
   const serverQuotes = [
@@ -177,7 +177,6 @@ function fetchFromServer() {
   } else {
     console.log("✅ No new updates from server.");
   }
-}
 
 // 🕒 Periodic sync
 setInterval(fetchFromServer, 30000);
