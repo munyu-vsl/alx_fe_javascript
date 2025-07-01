@@ -38,6 +38,10 @@ function filterQuotes() {
   quoteDisplay.textContent = `"${randomQuote.text}" - [${randomQuote.category}]`;
   sessionStorage.setItem("lastQuote", JSON.stringify(randomQuote));
 }
+function showRandomQuote() {
+  filterQuotes();
+}
+
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
   const categoryInput = document.getElementById("newQuoteCategory");
